@@ -1,0 +1,9 @@
+.cvsignore
+MANIFEST
+META.yml
+Makefile.PL
+README
+lib/Params/Classify.pm
+t/blessed.t
+t/classify.t
+t/ref.t
