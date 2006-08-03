@@ -52,9 +52,9 @@ use warnings;
 use strict;
 
 use Exporter;
-use Scalar::Util qw(blessed looks_like_number reftype);
+use Scalar::Util 1.10 qw(blessed reftype);
 
-our $VERSION = "0.000";
+our $VERSION = "0.001";
 
 our @ISA = qw(Exporter);
 
@@ -177,17 +177,6 @@ This returns true iff ARG is defined and an ordinary scalar (i.e.,
 satisfies C<is_string> above) and is an acceptable number to Perl.
 This is what one usually thinks of as a number.
 
-This differs from C<looks_like_number> (see
-L<Scalar::Util/looks_like_number>; also L<perlapi/looks_like_number>
-for a lower-level description) in excluding C<undef>, typeglobs,
-and references.  Why C<looks_like_number> returns true for C<undef>
-or typeglobs is anybody's guess.  References, if treated as numbers,
-evaluate to the address in memory that they reference; this is useful
-for comparing references for equality, but it is not otherwise useful
-to treat references as numbers.  Blessed references may have overloaded
-numeric operators, but if so then they don't necessarily behave like
-ordinary numbers.
-
 Note that simple (C<is_string>-satisfying) scalars may have independent
 numeric and string values, despite the usual pretence that they have
 only one value.  Such a scalar is deemed to be a number if I<either> it
@@ -201,15 +190,31 @@ only in a numeric context, if you are using it as a number.  C<0+ARG>
 is sufficient to collapse it to an ordinary number if you want the
 numeric value in string form.
 
-=cut
+A number may be either a native integer or a native floating point value.
+There are several subtypes of floating point value.  For classification
+among floating point values see L<Data::Float>.
 
-# Note: looks_like_number() returning true for undef and typeglobs appears
-# to be a bug in perl.  It's present in v5.8.3 and reported as bug ID
-# #27606.  Without this bug we wouldn't need the defined($arg) test below.
+This function differs from C<looks_like_number> (see
+L<Scalar::Util/looks_like_number>; also L<perlapi/looks_like_number>
+for a lower-level description) in excluding C<undef>, typeglobs,
+and references.  Why C<looks_like_number> returns true for C<undef>
+or typeglobs is anybody's guess.  References, if treated as numbers,
+evaluate to the address in memory that they reference; this is useful
+for comparing references for equality, but it is not otherwise useful
+to treat references as numbers.  Blessed references may have overloaded
+numeric operators, but if so then they don't necessarily behave like
+ordinary numbers.  C<looks_like_number> is also confused by dualvars:
+it looks at the string portion of the scalar.
+
+=cut
 
 sub is_number($) {
 	my($arg) = @_;
-	defined($arg) && reftype(\$arg) eq "SCALAR" && looks_like_number($arg);
+	return 0 unless defined($arg) && reftype(\$arg) eq "SCALAR";
+	my $warned;
+	local $SIG{__WARN__} = sub { $warned = 1; };
+	{ no warnings "void"; 0 + $arg; }
+	return !$warned;
 }
 
 =back
@@ -388,6 +393,7 @@ system, which makes much the same distinctions.
 
 =head1 SEE ALSO
 
+L<Data::Float>,
 L<Params::Validate>,
 L<Scalar::Util>
 
@@ -397,7 +403,7 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2004 Andrew Main (Zefram) <zefram@fysh.org>
+Copyright (C) 2004, 2006 Andrew Main (Zefram) <zefram@fysh.org>
 
 This module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

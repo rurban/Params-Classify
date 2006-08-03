@@ -1,0 +1,21 @@
+version 0.001; 2006-08-03
+
+  * bugfix: in is_number(), check whether numeric conversion warns, rather
+    than using looks_like_number(), to avoid being confused by dualvars
+
+  * in t/ref.t, skip *foo{FORMAT} tests on older Perls that don't provide
+    that facility
+
+  * refer to Data::Float for classification of floating point values
+
+  * versioned dependencies in .pm
+
+  * declare module dependencies in Makefile.PL
+
+  * correct .cvsignore (had copy&modify detritus)
+
+  * include Changes file
+
+version 0.000; 2004-03-20
+
+  * initial released version

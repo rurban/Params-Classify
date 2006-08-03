@@ -29,4 +29,9 @@ test_ref_type(\pos($foo), "SCALAR");
 test_ref_type([], "ARRAY");
 test_ref_type({}, "HASH");
 test_ref_type(\&is, "CODE");
-test_ref_type(*foo{FORMAT}, "FORMAT");
+
+SKIP: {
+	my $format = *foo{FORMAT};
+	skip "this Perl doesn't do *foo{FORMAT}", 9 unless defined $format;
+	test_ref_type($format, "FORMAT");
+}
