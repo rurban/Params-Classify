@@ -1,3 +1,14 @@
+version 0.002; 2007-01-25
+
+  * add is_pure_string() and is_pure_number() functions that determine
+    how complicated a string scalar is
+
+  * in documentation for is_number(), reference Scalar::Number and
+    Data::Integer
+
+  * correct version requirement of Scalar::Util in module, making it
+    consistent with the dependency listed in Makefile.PL
+
 version 0.001; 2006-08-03
 
   * bugfix: in is_number(), check whether numeric conversion warns, rather

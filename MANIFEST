@@ -7,4 +7,5 @@ README
 lib/Params/Classify.pm
 t/blessed.t
 t/classify.t
+t/purity.t
 t/ref.t
