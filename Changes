@@ -1,3 +1,9 @@
+version 0.003; 2007-08-15
+
+  * in t/purity.t, modify purity test on dualvar(+0.0, "0") to operate
+    appropriately on older Perls where "0" numifies to a floating
+    point zero, and add a test for dualvar(0, "0")
+
 version 0.002; 2007-01-25
 
   * add is_pure_string() and is_pure_number() functions that determine

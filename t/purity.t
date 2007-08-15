@@ -1,4 +1,4 @@
-use Test::More tests => 44;
+use Test::More tests => 45;
 
 BEGIN { use_ok "Params::Classify", qw(is_pure_string is_pure_number); }
 
@@ -42,7 +42,10 @@ SKIP: {
 	SKIP: {
 		eval { require Scalar::Util };
 		skip "dualvar() not available", 2 if $@ ne "";
-		ok !is_pure_string(Scalar::Util::dualvar(+0.0, "0"));
+		is !!(sprintf("%+.f", -"0") eq "-0"),
+			!is_pure_string(Scalar::Util::dualvar(0, "0"));
+		is !!(sprintf("%+.f", -"0") eq "-0"),
+			!!is_pure_string(Scalar::Util::dualvar(+0.0, "0"));
 		ok !is_pure_string(Scalar::Util::dualvar(-0.0, "0"));
 	}
 }
