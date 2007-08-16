@@ -56,7 +56,7 @@ use strict;
 use Exporter;
 use Scalar::Util 1.01 qw(blessed reftype);
 
-our $VERSION = "0.003";
+our $VERSION = "0.004";
 
 our @ISA = qw(Exporter);
 

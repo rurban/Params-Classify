@@ -34,7 +34,7 @@ SKIP: {
 }
 
 SKIP: {
-	skip "floating point zero is unsigned", 5
+	skip "floating point zero is unsigned", 6
 		unless sprintf("%+.f", -0.0) eq "-0";
 	ok is_pure_number(0);
 	ok is_pure_number(+0.0);
