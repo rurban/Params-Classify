@@ -1,3 +1,12 @@
+version 0.005; 2007-09-02
+
+  * in t/purity.t, modify purity test on dualvar(0, "0") to operate
+    appropriately on older Perls where this has a different numeric
+    value from 0
+
+  * in t/purity.t, fix a skip count for the case where dualvar() is
+    not available
+
 version 0.004; 2007-08-16
 
   * in t/purity.t, fix a skip count for the case where floating point

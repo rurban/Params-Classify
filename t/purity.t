@@ -41,9 +41,10 @@ SKIP: {
 	ok is_pure_number(-0.0);
 	SKIP: {
 		eval { require Scalar::Util };
-		skip "dualvar() not available", 2 if $@ ne "";
-		is !!(sprintf("%+.f", -"0") eq "-0"),
-			!is_pure_string(Scalar::Util::dualvar(0, "0"));
+		skip "dualvar() not available", 3 if $@ ne "";
+		is sprintf("%+.f", -"0") eq
+			    sprintf("%+.f", -Scalar::Util::dualvar(0, "0")),
+			is_pure_string(Scalar::Util::dualvar(0, "0"));
 		is !!(sprintf("%+.f", -"0") eq "-0"),
 			!!is_pure_string(Scalar::Util::dualvar(+0.0, "0"));
 		ok !is_pure_string(Scalar::Util::dualvar(-0.0, "0"));
