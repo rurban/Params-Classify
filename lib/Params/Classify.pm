@@ -6,7 +6,7 @@ Params::Classify - argument type classification
 
 	use Params::Classify qw(scalar_class
 		is_undef
-		is_string is_number is_pure_string is_pure_number
+		is_string is_number
 		is_glob
 		is_ref ref_type
 		is_blessed blessed_class
@@ -18,8 +18,6 @@ Params::Classify - argument type classification
 
 	$ok = is_string($foo);
 	$ok = is_number($foo);
-	$ok = is_pure_string($foo);
-	$ok = is_pure_number($foo);
 
 	$ok = is_glob($foo);
 
@@ -53,17 +51,15 @@ package Params::Classify;
 use warnings;
 use strict;
 
-use Exporter;
 use Scalar::Util 1.01 qw(blessed reftype);
 
-our $VERSION = "0.005";
+our $VERSION = "0.006";
 
-our @ISA = qw(Exporter);
-
+use base "Exporter";
 our @EXPORT_OK = qw(
 	scalar_class
 	is_undef
-	is_string is_number is_pure_string is_pure_number
+	is_string is_number
 	is_glob
 	is_ref ref_type
 	is_blessed blessed_class is_strictly_blessed is_able
@@ -220,42 +216,6 @@ sub is_number($) {
 	local $SIG{__WARN__} = sub { $warned = 1; };
 	{ no warnings "void"; 0 + $arg; }
 	return !$warned;
-}
-
-=item is_pure_string(ARG)
-
-This returns true iff ARG is defined and an ordinary scalar (i.e.,
-satisfies C<is_string> above) and is fully described by its string value.
-That is, its numeric value is that which would be obtained by automatic
-conversion from the string value.  Such a scalar could have originated
-as a string literal or constructed string.  This excludes many floating
-point number values which stringify lossily.
-
-=cut
-
-sub is_pure_string($) {
-	my($val) = @_;
-	return 0 unless is_string($val);
-	require Scalar::Number;
-	local $SIG{__WARN__} = sub { };
-	return Scalar::Number::sclnum_id_cmp("$val", $val) == 0;
-}
-
-=item is_pure_number(ARG)
-
-This returns true iff ARG is defined and an ordinary scalar (i.e.,
-satisfies C<is_string> above) and is fully described by its numeric value.
-That is, its string value is that which would be obtained by automatic
-conversion from the numeric value.  Such a scalar could have originated
-as a numeric literal or calculated number.  This excludes most strings.
-
-=cut
-
-sub is_pure_number($) {
-	my($val) = @_;
-	return 0 unless is_string($val);
-	require Scalar::Number;
-	return Scalar::Number::scalar_num_part($val) eq $val;
 }
 
 =back
@@ -446,7 +406,10 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2004, 2006, 2007 Andrew Main (Zefram) <zefram@fysh.org>
+Copyright (C) 2004, 2006, 2007, 2009
+Andrew Main (Zefram) <zefram@fysh.org>
+
+=head1 LICENSE
 
 This module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

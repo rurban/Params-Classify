@@ -1,3 +1,21 @@
+version 0.006; 2009-02-15
+
+  * withdraw is_pure_string() and is_pure_number() functions, because
+    they've never worked right and bring in a big dependency for marginal
+    utility
+
+  * use "base" pragma to import Exporter behaviour
+
+  * test POD syntax and coverage
+
+  * build with Module::Build instead of ExtUtils::MakeMaker
+
+  * complete dependency list
+
+  * include signature in distribution
+
+  * in documentation, separate "license" section from "copyright" section
+
 version 0.005; 2007-09-02
 
   * in t/purity.t, modify purity test on dualvar(0, "0") to operate

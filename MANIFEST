@@ -1,4 +1,5 @@
 .cvsignore
+Build.PL
 Changes
 MANIFEST
 META.yml
@@ -7,5 +8,7 @@ README
 lib/Params/Classify.pm
 t/blessed.t
 t/classify.t
-t/purity.t
+t/pod_cvg.t
+t/pod_syn.t
 t/ref.t
+SIGNATURE    Added here by Module::Build
