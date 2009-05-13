@@ -44,6 +44,9 @@ type restrictions.  Type enforcement may, of course, be built using
 these classification functions, but the reader's attention is drawn
 to L<Params::Validate>.
 
+This module is implemented in XS, with a pure Perl backup version for
+systems that can't handle XS.
+
 =cut
 
 package Params::Classify;
@@ -51,11 +54,9 @@ package Params::Classify;
 use warnings;
 use strict;
 
-use Scalar::Util 1.01 qw(blessed reftype);
+our $VERSION = "0.007";
 
-our $VERSION = "0.006";
-
-use base "Exporter";
+use parent "Exporter";
 our @EXPORT_OK = qw(
 	scalar_class
 	is_undef
@@ -64,6 +65,39 @@ our @EXPORT_OK = qw(
 	is_ref ref_type
 	is_blessed blessed_class is_strictly_blessed is_able
 );
+
+eval { local $SIG{__DIE__};
+	require XSLoader;
+	XSLoader::load(__PACKAGE__, $VERSION);
+};
+
+if($@ eq "") {
+	close(DATA);
+	*is_number = sub($) {
+		return 0 unless &is_string;
+		my($arg) = @_;
+		my $warned;
+		local $SIG{__WARN__} = sub { $warned = 1; };
+		{ no warnings "void"; 0 + $arg; }
+		return !$warned;
+	};
+} else {
+	(my $filename = __FILE__) =~ tr# -~##cd;
+	local $/ = undef;
+	my $pp_code = "#line 99 \"$filename\"\n".<DATA>;
+	close(DATA);
+	{
+		local $SIG{__DIE__};
+		eval $pp_code;
+	}
+	die $@ if $@ ne "";
+}
+
+1;
+
+__DATA__
+
+use Scalar::Util 1.01 qw(blessed reftype);
 
 =head1 TYPE CLASSIFICATION
 
@@ -106,7 +140,7 @@ of the reference.)
 Each of these functions takes one scalar argument to be tested, possibly
 with other arguments specifying details of the test.  Any scalar value is
 acceptable for the argument to be tested (called ARG below).  Each "is_"
-function returns a simple boolean result.
+function returns a simple truth value result.
 
 =head2 Classification
 
@@ -408,6 +442,8 @@ Andrew Main (Zefram) <zefram@fysh.org>
 
 Copyright (C) 2004, 2006, 2007, 2009
 Andrew Main (Zefram) <zefram@fysh.org>
+
+Copyright (C) 2009 PhotoBox Ltd
 
 =head1 LICENSE
 

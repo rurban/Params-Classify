@@ -1,3 +1,15 @@
+version 0.007; 2009-05-13
+
+  * XS implementation, used if available with fallback to existing pure
+    Perl implementation if XS is not available
+
+  * use simpler "parent" pragma in place of "base"
+
+  * in documentation, use the term "truth value" instead of the less
+    precise "boolean"
+
+  * use full stricture in Build.PL
+
 version 0.006; 2009-02-15
 
   * withdraw is_pure_string() and is_pure_number() functions, because

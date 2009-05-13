@@ -37,3 +37,5 @@ test_blessed({},                undef,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 test_blessed(bless({}, "main"), "main", 1, 1, 0, 0, 0, 0, 1, 1, 0, 0);
 test_blessed(bless({}, "A"),    "A",    1, 1, 0, 2, 0, 0, 1, 1, 0, 1);
 test_blessed(bless({}, "B"),    "B",    1, 1, 0, 1, 2, 0, 1, 1, 0, 1);
+
+1;

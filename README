@@ -15,6 +15,9 @@ type restrictions.  Type enforcement may, of course, be built using
 these classification functions, but the reader's attention is drawn
 to Params::Validate.
 
+This module is implemented in XS, with a pure Perl backup version for
+systems that can't handle XS.
+
 INSTALLATION
 
 	perl Build.PL
@@ -30,6 +33,8 @@ COPYRIGHT
 
 Copyright (C) 2004, 2006, 2007, 2009
 Andrew Main (Zefram) <zefram@fysh.org>
+
+Copyright (C) 2009 PhotoBox Ltd
 
 LICENSE
 

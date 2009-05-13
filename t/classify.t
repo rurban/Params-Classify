@@ -28,3 +28,5 @@ test_scalar_classification("1ab",             "STRING",  0, 1, 0, 0, 0, 0);
 test_scalar_classification(*STDOUT,           "GLOB",    0, 0, 0, 1, 0, 0);
 test_scalar_classification({},                "REF",     0, 0, 0, 0, 1, 0);
 test_scalar_classification(bless({}, "main"), "BLESSED", 0, 0, 0, 0, 0, 1);
+
+1;

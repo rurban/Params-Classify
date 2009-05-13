@@ -35,3 +35,5 @@ SKIP: {
 	skip "this Perl doesn't do *foo{FORMAT}", 9 unless defined $format;
 	test_ref_type($format, "FORMAT");
 }
+
+1;
