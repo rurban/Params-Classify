@@ -62,4 +62,4 @@ Module::Build->subclass(code => q{
 	sign => 1,
 )->create_build_script;
 
-exit 0;
+1;

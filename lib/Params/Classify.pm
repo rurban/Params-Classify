@@ -4,32 +4,46 @@ Params::Classify - argument type classification
 
 =head1 SYNOPSIS
 
-	use Params::Classify qw(scalar_class
-		is_undef
-		is_string is_number
-		is_glob
-		is_ref ref_type
-		is_blessed blessed_class
-		is_strictly_blessed is_able);
+	use Params::Classify qw(
+		scalar_class
+		is_undef check_undef
+		is_string check_string
+		is_number check_number
+		is_glob check_glob
+		is_ref check_ref ref_type
+		is_blessed check_blessed blessed_class
+		is_strictly_blessed check_strictly_blessed
+		is_able check_able
+	);
 
-	$c = scalar_class($foo);
+	$c = scalar_class($arg);
 
-	$ok = is_undef($foo);
+	if(is_undef($arg)) {
+	check_undef($arg);
 
-	$ok = is_string($foo);
-	$ok = is_number($foo);
+	if(is_string($arg)) {
+	check_string($arg);
+	if(is_number($arg)) {
+	check_number($arg);
 
-	$ok = is_glob($foo);
+	if(is_glob($arg)) {
+	check_glob($arg);
 
-	$ok = is_ref($foo);
-	$t = ref_type($foo);
-	$ok = is_ref($foo, "HASH");
+	if(is_ref($arg)) {
+	check_ref($arg);
+	$t = ref_type($arg);
+	if(is_ref($arg, "HASH")) {
+	check_ref($arg, "HASH");
 
-	$ok = is_blessed($foo);
-	$ok = is_blessed($foo, "IO::Handle");
-	$c = blessed_class($foo);
-	$ok = is_strictly_blessed($foo, "IO::Pipe::End");
-	$ok = is_able($foo, ["print", "flush"]);
+	if(is_blessed($arg)) {
+	check_blessed($arg);
+	if(is_blessed($arg, "IO::Handle")) {
+	check_blessed($arg, "IO::Handle");
+	$c = blessed_class($arg);
+	if(is_strictly_blessed($arg, "IO::Pipe::End")) {
+	check_strictly_blessed($arg, "IO::Pipe::End");
+	if(is_able($arg, ["print", "flush"])) {
+	check_able($arg, ["print", "flush"]);
 
 =head1 DESCRIPTION
 
@@ -39,10 +53,16 @@ are operating on.  For example, some functions wish to behave differently
 depending on the type of their arguments (like overloaded functions
 in C++).
 
-These functions only provide type classification; they do not enforce
-type restrictions.  Type enforcement may, of course, be built using
-these classification functions, but the reader's attention is drawn
-to L<Params::Validate>.
+There are two flavours of function in this module.  Functions of the first
+flavour only provide type classification, to allow code to discriminate
+between argument types.  Functions of the second flavour package up the
+most common type of type discrimination: checking that an argument is
+of an expected type.  The functions come in matched pairs, of the two
+flavours, and so the type enforcement functions handle only the simplest
+requirements for arguments of the types handled by the classification
+functions.  Enforcement of more complex types may, of course, be built
+using the classification functions, or it may be more convenient to use
+a module designed for the more complex job, such as L<Params::Validate>.
 
 This module is implemented in XS, with a pure Perl backup version for
 systems that can't handle XS.
@@ -54,16 +74,19 @@ package Params::Classify;
 use warnings;
 use strict;
 
-our $VERSION = "0.007";
+our $VERSION = "0.008";
 
 use parent "Exporter";
 our @EXPORT_OK = qw(
 	scalar_class
-	is_undef
-	is_string is_number
-	is_glob
-	is_ref ref_type
-	is_blessed blessed_class is_strictly_blessed is_able
+	is_undef check_undef
+	is_string check_string
+	is_number check_number
+	is_glob check_glob
+	is_ref check_ref ref_type
+	is_blessed check_blessed blessed_class
+	is_strictly_blessed check_strictly_blessed
+	is_able check_able
 );
 
 eval { local $SIG{__DIE__};
@@ -73,24 +96,30 @@ eval { local $SIG{__DIE__};
 
 if($@ eq "") {
 	close(DATA);
-	*is_number = sub($) {
-		return 0 unless &is_string;
-		my($arg) = @_;
-		my $warned;
-		local $SIG{__WARN__} = sub { $warned = 1; };
-		{ no warnings "void"; 0 + $arg; }
-		return !$warned;
-	};
 } else {
 	(my $filename = __FILE__) =~ tr# -~##cd;
 	local $/ = undef;
-	my $pp_code = "#line 99 \"$filename\"\n".<DATA>;
+	my $pp_code = "#line 128 \"$filename\"\n".<DATA>;
 	close(DATA);
 	{
 		local $SIG{__DIE__};
 		eval $pp_code;
 	}
 	die $@ if $@ ne "";
+}
+
+sub is_string($);
+sub is_number($) {
+	return 0 unless &is_string;
+	my $warned;
+	local $SIG{__WARN__} = sub { $warned = 1; };
+	my $arg = $_[0];
+	{ no warnings "void"; 0 + $arg; }
+	return !$warned;
+}
+
+sub check_number($) {
+	die "argument is not a number\n" unless &is_number;
 }
 
 1;
@@ -115,7 +144,7 @@ string (defined ordinary scalar)
 
 =item *
 
-typeglob
+typeglob (yes, typeglobs fit into scalar variables)
 
 =item *
 
@@ -137,10 +166,13 @@ of the reference.)
 
 =head1 FUNCTIONS
 
-Each of these functions takes one scalar argument to be tested, possibly
-with other arguments specifying details of the test.  Any scalar value is
-acceptable for the argument to be tested (called ARG below).  Each "is_"
-function returns a simple truth value result.
+Each of these functions takes one scalar argument (I<ARG>) to be tested,
+possibly with other arguments specifying details of the test.  Any scalar
+value is acceptable for the argument to be tested.  Each C<is_> function
+returns a simple truth value result, which is true iff I<ARG> is of the
+type being checked for.  Each C<check_> function will return normally
+if the argument is of the type being checked for, or will C<die> if it
+is not.
 
 =head2 Classification
 
@@ -148,18 +180,18 @@ function returns a simple truth value result.
 
 =item scalar_class(ARG)
 
-Determines which of the five classes described above ARG falls into.
-Returns "UNDEF", "STRING", "GLOB", "REF", or "BLESSED" accordingly.
+Determines which of the five classes described above I<ARG> falls into.
+Returns "B<UNDEF>", "B<STRING>", "B<GLOB>", "B<REF>", or "B<BLESSED>"
+accordingly.
 
 =cut
 
 sub scalar_class($) {
-	my($arg) = @_;
-	my $type = reftype(\$arg);
+	my $type = reftype(\$_[0]);
 	if($type eq "SCALAR") {
-		$type = defined($arg) ? "STRING" : "UNDEF";
+		$type = defined($_[0]) ? "STRING" : "UNDEF";
 	} elsif($type eq "REF") {
-		$type = "BLESSED" if defined(blessed($arg));
+		$type = "BLESSED" if defined(blessed($_[0]));
 	}
 	$type;
 }
@@ -172,14 +204,17 @@ sub scalar_class($) {
 
 =item is_undef(ARG)
 
-Returns true iff ARG is C<undef>.  This is precisely equivalent to
-C<!defined(ARG)>, and is included for completeness.
+=item check_undef(ARG)
+
+Check whether I<ARG> is C<undef>.  C<is_undef(ARG)> is precisely
+equivalent to C<!defined(ARG)>, and is included for completeness.
 
 =cut
 
-sub is_undef($) {
-	my($arg) = @_;
-	!defined($arg);
+sub is_undef($) { !defined($_[0]) }
+
+sub check_undef($) {
+	die "argument is not undefined\n" unless &is_undef;
 }
 
 =back
@@ -190,7 +225,9 @@ sub is_undef($) {
 
 =item is_string(ARG)
 
-This returns true iff ARG is defined and is an ordinary scalar value
+=item check_string(ARG)
+
+Check whether I<ARG> is defined and is an ordinary scalar value
 (not a reference or a typeglob).  This is what one usually thinks of as a
 string in Perl.  In fact, any scalar (including C<undef> and references)
 can be coerced to a string, but if you're trying to classify a scalar
@@ -198,18 +235,21 @@ then you don't want to do that.
 
 =cut
 
-sub is_string($) {
-	my($arg) = @_;
-	defined($arg) && reftype(\$arg) eq "SCALAR";
+sub is_string($) { defined($_[0]) && reftype(\$_[0]) eq "SCALAR" }
+
+sub check_string($) {
+	die "argument is not a string\n" unless &is_string;
 }
 
 =item is_number(ARG)
 
-This returns true iff ARG is defined and an ordinary scalar (i.e.,
-satisfies C<is_string> above) and is an acceptable number to Perl.
+=item check_number(ARG)
+
+Check whether I<ARG> is defined and an ordinary scalar (i.e.,
+satisfies L</is_string> above) and is an acceptable number to Perl.
 This is what one usually thinks of as a number.
 
-Note that simple (C<is_string>-satisfying) scalars may have independent
+Note that simple (L</is_string>-satisfying) scalars may have independent
 numeric and string values, despite the usual pretence that they have
 only one value.  Such a scalar is deemed to be a number if I<either> it
 already has a numeric value (e.g., was generated by a numeric literal
@@ -219,7 +259,7 @@ separate numeric and string values (see L<Scalar::Util/dualvar>), it is
 possible for it to have an acceptable numeric value while its string
 value does I<not> have acceptable numeric syntax.  Be careful to use
 such a value only in a numeric context, if you are using it as a number.
-C<scalar_num_part> in L<Scalar::Number> extracts the numeric part of a
+L<Scalar::Number/scalar_num_part> extracts the numeric part of a
 scalar as an ordinary number.  (C<0+ARG> suffices for that unless you
 need to preserve floating point signed zeroes.)
 
@@ -241,17 +281,6 @@ numeric operators, but if so then they don't necessarily behave like
 ordinary numbers.  C<looks_like_number> is also confused by dualvars:
 it looks at the string portion of the scalar.
 
-=cut
-
-sub is_number($) {
-	my($arg) = @_;
-	return 0 unless defined($arg) && reftype(\$arg) eq "SCALAR";
-	my $warned;
-	local $SIG{__WARN__} = sub { $warned = 1; };
-	{ no warnings "void"; 0 + $arg; }
-	return !$warned;
-}
-
 =back
 
 =head2 Typeglobs
@@ -260,14 +289,16 @@ sub is_number($) {
 
 =item is_glob(ARG)
 
-Returns true iff ARG is a typeglob.  Yes, typeglobs fit into scalar
-variables.
+=item check_glob(ARG)
+
+Check whether I<ARG> is a typeglob.
 
 =cut
 
-sub is_glob($) {
-	my($arg) = @_;
-	reftype(\$arg) eq "GLOB";
+sub is_glob($) { reftype(\$_[0]) eq "GLOB" }
+
+sub check_glob($) {
+	die "argument is not a typeglob\n" unless &is_glob;
 }
 
 =back
@@ -278,27 +309,33 @@ sub is_glob($) {
 
 =item is_ref(ARG)
 
-Returns true iff ARG is a reference to an unblessed object.  If it
+=item check_ref(ARG)
+
+Check whether I<ARG> is a reference to an unblessed object.  If it
 is, then the referenced data type can be determined using C<ref_type>
 (see below), which will return a string such as "HASH" or "SCALAR".
 
 =item ref_type(ARG)
 
-Returns C<undef> if ARG is not a reference to an unblessed object.
+Returns C<undef> if I<ARG> is not a reference to an unblessed object.
 Otherwise, determines what type of object is referenced.  Returns
-"SCALAR", "ARRAY", "HASH", "CODE", "FORMAT", or "IO" accordingly.
+"B<SCALAR>", "B<ARRAY>", "B<HASH>", "B<CODE>", "B<FORMAT>", or "B<IO>"
+accordingly.
 
 Note that, unlike C<ref>, this does not distinguish between different
 types of referenced scalar.  A reference to a string and a reference to
-a reference will both return "SCALAR".  Consequently, what C<ref_type>
+a reference will both return "B<SCALAR>".  Consequently, what C<ref_type>
 returns for a particular reference will not change due to changes in
 the value of the referent, except for the referent being blessed.
 
 =item is_ref(ARG, TYPE)
 
-TYPE must be a string.  Returns true iff ARG is a reference to an
-unblessed object of type TYPE, as determined by C<ref_type> (above).
-Possible TYPEs are "SCALAR", "ARRAY", "HASH", "CODE", "FORMAT", and "IO".
+=item check_ref(ARG, TYPE)
+
+Check whether I<ARG> is a reference to an unblessed object of type
+I<TYPE>, as determined by L</ref_type>.  I<TYPE> must be a string.
+Possible I<TYPE>s are "B<SCALAR>", "B<ARRAY>", "B<HASH>", "B<CODE>",
+"B<FORMAT>", and "B<IO>".
 
 =cut
 
@@ -315,11 +352,14 @@ Possible TYPEs are "SCALAR", "ARRAY", "HASH", "CODE", "FORMAT", and "IO".
 		IO     => "IO",
 	);
 
+	my %reftype_ok = map { ($_ => undef) } qw(
+		SCALAR ARRAY HASH CODE FORMAT IO
+	);
+
 	sub ref_type($) {
-		my($arg) = @_;
-		my $reftype = reftype($arg);
+		my $reftype = &reftype;
 		return undef unless
-			defined($reftype) && !defined(blessed($arg));
+			defined($reftype) && !defined(blessed($_[0]));
 		my $xlated_reftype = $xlate_reftype{$reftype};
 		die "unknown reftype `$reftype', please update me"
 			unless defined $xlated_reftype;
@@ -327,15 +367,27 @@ Possible TYPEs are "SCALAR", "ARRAY", "HASH", "CODE", "FORMAT", and "IO".
 	}
 
 	sub is_ref($;$) {
-		my($arg, $type) = @_;
-		my $reftype = reftype($arg);
+		if(@_ == 2) {
+			die "reference type argument is not a string\n"
+				unless is_string($_[1]);
+			die "invalid reference type\n"
+				unless exists $reftype_ok{$_[1]};
+		}
+		my $reftype = reftype($_[0]);
 		return undef unless
-			defined($reftype) && !defined(blessed($arg));
-		return 1 if !defined($type);
+			defined($reftype) && !defined(blessed($_[0]));
+		return 1 if @_ != 2;
 		my $xlated_reftype = $xlate_reftype{$reftype};
 		die "unknown reftype `$reftype', please update me"
 			unless defined $xlated_reftype;
-		$xlated_reftype eq $type;
+		return $xlated_reftype eq $_[1];
+	}
+}
+
+sub check_ref($;$) {
+	unless(&is_ref) {
+		die "argument is not a reference to plain ".
+			(@_ == 2 ? lc($_[1]) : "object")."\n";
 	}
 }
 
@@ -347,32 +399,43 @@ Possible TYPEs are "SCALAR", "ARRAY", "HASH", "CODE", "FORMAT", and "IO".
 
 =item is_blessed(ARG)
 
-Returns true iff ARG is a reference to a blessed object.  If it is,
+=item check_blessed(ARG)
+
+Check whether I<ARG> is a reference to a blessed object.  If it is,
 then the class into which the object was blessed can be determined using
-C<blessed_class> (see below).
+L</blessed_class>.
 
 =item is_blessed(ARG, CLASS)
 
-CLASS must be a string.  Returns true iff ARG is a reference to a blessed
-object that claims to be an instance of CLASS (via its C<isa> method;
-see L<perlobj/isa>).
+=item check_blessed(ARG, CLASS)
+
+Check whether I<ARG> is a reference to a blessed object that claims to
+be an instance of I<CLASS> (via its C<isa> method; see L<perlobj/isa>).
+I<CLASS> must be a string, naming a Perl class.
 
 =cut
 
 sub is_blessed($;$) {
-	my($arg, $class) = @_;
-	defined(blessed($arg)) && (!defined($class) || $arg->isa($class));
+	die "class argument is not a string\n"
+		if @_ == 2  && !is_string($_[1]);
+	return defined(blessed($_[0])) && (@_ != 2 || $_[0]->isa($_[1]));
+}
+
+sub check_blessed($;$) {
+	unless(&is_blessed) {
+		die "argument is not a reference to blessed ".
+			(@_ == 2 ? $_[1] : "object")."\n";
+	}
 }
 
 =item blessed_class(ARG)
 
-Returns C<undef> if ARG is not a reference to a blessed object.
+Returns C<undef> if I<ARG> is not a reference to a blessed object.
 Otherwise, returns the class into which the object is blessed.
 
 C<ref> (see L<perlfunc/ref>) gives the same result on references
 to blessed objects, but different results on other types of value.
-C<blessed_class> is actually identical to C<Scalar::Util::blessed>
-(see L<Scalar::Util/blessed>).
+C<blessed_class> is actually identical to L<Scalar::Util/blessed>.
 
 =cut
 
@@ -380,51 +443,91 @@ C<blessed_class> is actually identical to C<Scalar::Util::blessed>
 
 =item is_strictly_blessed(ARG)
 
-Returns true iff ARG is a reference to a blessed object, identically
-to C<is_blessed>.  This exists only for symmetry; the useful form of
+=item check_strictly_blessed(ARG)
+
+Check whether I<ARG> is a reference to a blessed object, identically
+to L</is_blessed>.  This exists only for symmetry; the useful form of
 C<is_strictly_blessed> appears below.
 
 =item is_strictly_blessed(ARG, CLASS)
 
-CLASS must be a string.  Returns true iff ARG is a reference to an object
-blessed into class CLASS exactly.  Because this excludes subclasses,
-this is rarely what one wants, but there are some specialised occasions
-where it is useful.
+=item check_strictly_blessed(ARG, CLASS)
+
+Check whether I<ARG> is a reference to an object blessed into I<CLASS>
+exactly.  I<CLASS> must be a string, naming a Perl class.  Because this
+excludes subclasses, this is rarely what one wants, but there are some
+specialised occasions where it is useful.
 
 =cut
 
 sub is_strictly_blessed($;$) {
-	my($arg, $class) = @_;
-	my $blessed = blessed($arg);
-	defined($blessed) && (!defined($class) || $blessed eq $class);
+	die "class argument is not a string\n"
+		if @_ == 2  && !is_string($_[1]);
+	my $blessed = blessed($_[0]);
+	return defined($blessed) && (@_ != 2 || $blessed eq $_[1]);
+}
+
+sub check_strictly_blessed($;$) {
+	unless(&is_strictly_blessed) {
+		die "argument is not a reference to strictly blessed ".
+			(@_ == 2 ? $_[1] : "object")."\n";
+	}
 }
 
 =item is_able(ARG, METHODS)
 
-METHODS must be either a single method name or a reference to an array
-of method names.  Each method name is a string.  Returns true iff ARG is
-a reference to a blessed object that claims to implement the specified
-methods (via its C<can> method; see L<perlobj/can>).  This interface
-check is often more appropriate than a direct ancestry check (such as
-C<is_blessed> performs).
+=item check_able(ARG, METHODS)
+
+Check whether I<ARG> is a reference to a blessed object that claims to
+implement the methods specified by I<METHODS> (via its C<can> method;
+see L<perlobj/can>).  I<METHODS> must be either a single method name or
+a reference to an array of method names.  Each method name is a string.
+This interface check is often more appropriate than a direct ancestry
+check (such as L</is_blessed> performs).
 
 =cut
 
-sub is_able($$) {
-	my($arg, $methods) = @_;
-	return 0 unless defined blessed $arg;
-	foreach my $method (ref($methods) eq "" ? $methods : @$methods) {
-		return 0 unless $arg->can($method);
+sub _check_methods_arg($) {
+	return if &is_string;
+	die "methods argument is not a string or array\n"
+		unless is_ref($_[0], "ARRAY");
+	foreach(@{$_[0]}) {
+		die "method name is not a string\n" unless is_string($_);
 	}
-	1;
+}
+
+sub is_able($$) {
+	_check_methods_arg($_[1]);
+	return 0 unless defined blessed $_[0];
+	foreach my $method (ref($_[1]) eq "" ? $_[1] : @{$_[1]}) {
+		return 0 unless $_[0]->can($method);
+	}
+	return 1;
+}
+
+sub check_able($$) {
+	_check_methods_arg($_[1]);
+	unless(defined blessed $_[0]) {
+		my $desc = ref($_[1]) eq "" ?
+				"method \"$_[1]\""
+			: @{$_[1]} == 0 ?
+				"at all"
+			:
+				"method \"".$_[1]->[0]."\"";
+		die "argument is not able to perform $desc\n";
+	}
+	foreach my $method (ref($_[1]) eq "" ? $_[1] : @{$_[1]}) {
+		die "argument is not able to perform method \"$method\"\n"
+			unless $_[0]->can($method);
+	}
 }
 
 =back
 
 =head1 BUGS
 
-Probably ought to handle C<Params::Validate>'s scalar type specification
-system, which makes much the same distinctions.
+Probably ought to handle something like L<Params::Validate>'s scalar
+type specification system, which makes much the same distinctions.
 
 =head1 SEE ALSO
 

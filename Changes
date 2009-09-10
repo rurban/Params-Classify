@@ -1,3 +1,19 @@
+version 0.008; 2009-09-10
+
+  * add "check_" functions for argument checking
+
+  * strict argument checking in all functions that take control arguments
+
+  * revise documentation
+
+  * revise pure Perl code to avoid unnecessary argument copying
+
+  * in XS code, make all auxiliary functions "static"
+
+  * revise POD markup
+
+  * remove bogus "exit 0" from Build.PL
+
 version 0.007; 2009-05-13
 
   * XS implementation, used if available with fallback to existing pure

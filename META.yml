@@ -1,6 +1,6 @@
 ---
 name: Params-Classify
-version: 0.007
+version: 0.008
 author:
   - 'Andrew Main (Zefram) <zefram@fysh.org>'
 abstract: argument type classification
@@ -26,7 +26,7 @@ dynamic_config: 1
 provides:
   Params::Classify:
     file: lib/Params/Classify.pm
-    version: 0.007
+    version: 0.008
 generated_by: Module::Build version 0.31012
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

@@ -1,4 +1,4 @@
-use Test::More tests => 109;
+use Test::More tests => 97;
 
 BEGIN { use_ok "Params::Classify", qw(is_ref ref_type); }
 
@@ -12,7 +12,7 @@ sub test_ref_type($$) {
 	is(ref_type($scalar), $reftype);
 	is(!!is_ref($scalar), !!$reftype);
 	$reftype = "" if !defined($reftype);
-	foreach my $type (qw(SCALAR ARRAY HASH CODE FORMAT IO qwerty)) {
+	foreach my $type (qw(SCALAR ARRAY HASH CODE FORMAT IO)) {
 		is(!!is_ref($scalar, $type), $type eq $reftype);
 	}
 }
