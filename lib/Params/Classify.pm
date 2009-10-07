@@ -10,6 +10,7 @@ Params::Classify - argument type classification
 		is_string check_string
 		is_number check_number
 		is_glob check_glob
+		is_regexp check_regexp
 		is_ref check_ref ref_type
 		is_blessed check_blessed blessed_class
 		is_strictly_blessed check_strictly_blessed
@@ -28,6 +29,8 @@ Params::Classify - argument type classification
 
 	if(is_glob($arg)) {
 	check_glob($arg);
+	if(is_regexp($arg)) {
+	check_regexp($arg);
 
 	if(is_ref($arg)) {
 	check_ref($arg);
@@ -71,10 +74,11 @@ systems that can't handle XS.
 
 package Params::Classify;
 
+{ use 5.006; }
 use warnings;
 use strict;
 
-our $VERSION = "0.008";
+our $VERSION = "0.009";
 
 use parent "Exporter";
 our @EXPORT_OK = qw(
@@ -83,6 +87,7 @@ our @EXPORT_OK = qw(
 	is_string check_string
 	is_number check_number
 	is_glob check_glob
+	is_regexp check_regexp
 	is_ref check_ref ref_type
 	is_blessed check_blessed blessed_class
 	is_strictly_blessed check_strictly_blessed
@@ -148,6 +153,10 @@ typeglob (yes, typeglobs fit into scalar variables)
 
 =item *
 
+regexp (first-class regular expression objects in Perl 5.11 onwards)
+
+=item *
+
 reference to unblessed object (further classified by physical data type
 of the referenced object)
 
@@ -181,8 +190,8 @@ is not.
 =item scalar_class(ARG)
 
 Determines which of the five classes described above I<ARG> falls into.
-Returns "B<UNDEF>", "B<STRING>", "B<GLOB>", "B<REF>", or "B<BLESSED>"
-accordingly.
+Returns "B<UNDEF>", "B<STRING>", "B<GLOB>", "B<REGEXP>", "B<REF>", or
+"B<BLESSED>" accordingly.
 
 =cut
 
@@ -227,8 +236,8 @@ sub check_undef($) {
 
 =item check_string(ARG)
 
-Check whether I<ARG> is defined and is an ordinary scalar value
-(not a reference or a typeglob).  This is what one usually thinks of as a
+Check whether I<ARG> is defined and is an ordinary scalar value (not a
+reference, typeglob, or regexp).  This is what one usually thinks of as a
 string in Perl.  In fact, any scalar (including C<undef> and references)
 can be coerced to a string, but if you're trying to classify a scalar
 then you don't want to do that.
@@ -303,6 +312,26 @@ sub check_glob($) {
 
 =back
 
+=head2 Regexps
+
+=over
+
+=item is_regexp(ARG)
+
+=item check_regexp(ARG)
+
+Check whether I<ARG> is a regexp object.
+
+=cut
+
+sub is_regexp($) { reftype(\$_[0]) eq "REGEXP" }
+
+sub check_regexp($) {
+	die "argument is not a regexp\n" unless &is_regexp;
+}
+
+=back
+
 =head2 References to Unblessed Objects
 
 =over
@@ -345,6 +374,7 @@ Possible I<TYPE>s are "B<SCALAR>", "B<ARRAY>", "B<HASH>", "B<CODE>",
 		SCALAR => "SCALAR",
 		LVALUE => "SCALAR",
 		GLOB   => "SCALAR",
+		REGEXP => "SCALAR",
 		ARRAY  => "ARRAY",
 		HASH   => "HASH",
 		CODE   => "CODE",

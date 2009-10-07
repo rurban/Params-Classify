@@ -1,11 +1,11 @@
 use warnings;
 use strict;
 
-use Test::More tests => 1 + 16*17;
+use Test::More tests => 1 + 17*18;
 
 BEGIN {
 	use_ok "Params::Classify", map { ("is_$_", "check_$_") } qw(
-		undef string number glob
+		undef string number glob regexp
 		ref blessed strictly_blessed able
 	);
 }
@@ -23,6 +23,7 @@ foreach(
 	"0 but true",
 	"1ab",
 	*STDOUT,
+	${qr/xyz/},
 	\"",
 	\\"",
 	[],
@@ -41,6 +42,8 @@ foreach(
 	is $@, is_number($_) ? "" : "argument is not a number\n";
 	eval { check_glob($_); };
 	is $@, is_glob($_) ? "" : "argument is not a typeglob\n";
+	eval { check_regexp($_); };
+	is $@, is_regexp($_) ? "" : "argument is not a regexp\n";
 	eval { check_ref($_); };
 	is $@, is_ref($_) ? "" :
 		"argument is not a reference to plain object\n";

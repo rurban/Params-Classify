@@ -1,4 +1,4 @@
-use Test::More tests => 97;
+use Test::More tests => 1 + 8*12;
 
 BEGIN { use_ok "Params::Classify", qw(is_ref ref_type); }
 
@@ -32,7 +32,7 @@ test_ref_type(\&is, "CODE");
 
 SKIP: {
 	my $format = *foo{FORMAT};
-	skip "this Perl doesn't do *foo{FORMAT}", 9 unless defined $format;
+	skip "this Perl doesn't do *foo{FORMAT}", 8 unless defined $format;
 	test_ref_type($format, "FORMAT");
 }
 

@@ -15,32 +15,32 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 9f070b5a5dcc2d53447a0f43584eb219aa686f66 .cvsignore
-SHA1 af9e5b1f29110f0da0caeb7aaeb81a2e2db77f90 Build.PL
-SHA1 7f22b1fad104a6069fdee4c364cdfe81dfcc4fca Changes
+SHA1 ac032bc697cfb90a5c3befe6ae81ea33f27226af Build.PL
+SHA1 00875ad7987e07c923e8b7ea8b05bf0ed07cbccd Changes
 SHA1 f9620d343525ff1fc3e3f35e77171716b97c557c MANIFEST
-SHA1 44d3dbd62ec71bec373531328053535348b96c33 META.yml
-SHA1 684ab827ae5405876abe203f5a032ffa6b575cf7 Makefile.PL
+SHA1 b8fe1ad99bf3075e702a6c0dc74e6584fb8e186d META.yml
+SHA1 34fe1b08005c6feb5ed84bd22456347fe2032f4b Makefile.PL
 SHA1 104090ec719f91482eaa564c826c250c45b21a59 README
 SHA1 91978573e906c90b93752e0733ef8e875f0d1b89 lib/Params/.cvsignore
-SHA1 110b914b92d8c563c285ef55c7d305c6c32bd779 lib/Params/Classify.pm
-SHA1 3dc87b4c68948f498a219dbbde6c848eff3492e2 lib/Params/Classify.xs
+SHA1 5eaa23d5ec2542a3497f869a2d88742732ea6033 lib/Params/Classify.pm
+SHA1 e05ab9aa13db9a19dd430421ef853dd14b9da5c8 lib/Params/Classify.xs
 SHA1 4b8cdbbfd1dea667bdd61a8b9621109c68e0dc7a t/blessed.t
 SHA1 a3d9a389510faf3bfecb4860a14813988a0eddcd t/blessed_pp.t
-SHA1 06f47b8c6c9dbc6619277e761d83e591bb35630c t/check.t
+SHA1 05aff9d44d733979b0bd8f566d1cb27fe7bd1657 t/check.t
 SHA1 ec88f98f2f29c1a6999db46666e5eb7cf9fa46b1 t/check_pp.t
-SHA1 ef874cda555050e9b75701ec602c53504f11383c t/classify.t
+SHA1 ca5ae17f55bba5a9a9a76285447704e4a922b643 t/classify.t
 SHA1 22c8bb9af38f3eaa604350884e3fcc9c200b5f1b t/classify_pp.t
 SHA1 3250e576c589744c9b3ef63c93b13d8ba6a5933f t/error.t
 SHA1 fc008cb61eb02798d6ec02df230ef4d59bcdca12 t/error_pp.t
 SHA1 0e141eecf3ca4903ef38d9413b5403a9ddb0392f t/pod_cvg.t
 SHA1 74a957cd8b93f25672ecc6aa578a671d084dd343 t/pod_syn.t
-SHA1 6828ed75aa6f7af1834b1022ea314301ebbff6aa t/ref.t
+SHA1 d7e84d9429f7f167d69badae1cef27137b1480f4 t/ref.t
 SHA1 4a19b745e2bcdfb8db18b149e79fcf8c235b24f8 t/ref_pp.t
 SHA1 2159e80bde44de0eac1d90b83b57ae9681876519 t/setup_pp.pl
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.9 (GNU/Linux)
 
-iEYEARECAAYFAkqpWI4ACgkQOV9mt2VyAVEsTgCfVkyB6lSNfkbV33Vn0iCMD+OO
-rLIAn161OTMNxdXxQekRYMYpEKQFt3kq
-=o6b7
+iEYEARECAAYFAkrL/2gACgkQOV9mt2VyAVF0mACeKswRGJ7JvBo++ArdsBMEd74L
+sPAAn3tqeaFBN2/RpWJ9Joi1ovN+cIQ+
+=3u9E
 -----END PGP SIGNATURE-----

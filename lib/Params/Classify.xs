@@ -2,17 +2,29 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#define PERL_VERSION_DECIMAL(r,v,s) (r*1000000 + v*1000 + s)
+#define PERL_DECIMAL_VERSION \
+	PERL_VERSION_DECIMAL(PERL_REVISION,PERL_VERSION,PERL_SUBVERSION)
+#define PERL_VERSION_GE(r,v,s) \
+	(PERL_DECIMAL_VERSION >= PERL_VERSION_DECIMAL(r,v,s))
+
 #ifndef HvNAME_get
 # define HvNAME_get(hv) HvNAME(hv)
 #endif
 
-#define sv_is_undef(sv) (SvTYPE(sv) != SVt_PVGV && !SvOK(sv))
+#define sv_is_glob(sv) (SvTYPE(sv) == SVt_PVGV)
+
+#if PERL_VERSION_GE(5,11,0)
+# define sv_is_regexp(sv) (SvTYPE(sv) == SVt_REGEXP)
+#else /* <5.11.0 */
+# define sv_is_regexp(sv) 0
+#endif /* <5.11.0 */
+
+#define sv_is_undef(sv) (!sv_is_glob(sv) && !sv_is_regexp(sv) && !SvOK(sv))
 
 #define sv_is_string(sv) \
-	(SvTYPE(sv) != SVt_PVGV && \
+	(!sv_is_glob(sv) && !sv_is_regexp(sv) && \
 	 (SvFLAGS(sv) & (SVf_IOK|SVf_NOK|SVf_POK|SVp_IOK|SVp_NOK|SVp_POK)))
-
-#define sv_is_glob(sv) (SvTYPE(sv) == SVt_PVGV)
 
 static svtype
 read_reftype(SV *reftype)
@@ -83,9 +95,15 @@ ref_type(SV *referent)
 {
 	svtype t = SvTYPE(referent);
 	switch(SvTYPE(referent)) {
-		case SVt_NULL: case SVt_IV: case SVt_NV: case SVt_RV:
+		case SVt_NULL: case SVt_IV: case SVt_NV:
+#if !PERL_VERSION_GE(5,11,0)
+		case SVt_RV:
+#endif /* <5.11.0 */
 		case SVt_PV: case SVt_PVIV: case SVt_PVNV:
 		case SVt_PVMG: case SVt_PVLV: case SVt_PVGV:
+#if PERL_VERSION_GE(5,11,0)
+		case SVt_REGEXP:
+#endif /* >=5.11.0 */
 			return SVt_NULL;
 		case SVt_PVAV: case SVt_PVHV: case SVt_PVCV: case SVt_PVFM:
 		case SVt_PVIO:
@@ -150,8 +168,10 @@ char *
 scalar_class(SV *arg)
 PROTOTYPE: $
 CODE:
-	if(SvTYPE(arg) == SVt_PVGV) {
+	if(sv_is_glob(arg)) {
 		RETVAL = "GLOB";
+	} else if(sv_is_regexp(arg)) {
+		RETVAL = "REGEXP";
 	} else if(!SvOK(arg)) {
 		RETVAL = "UNDEF";
 	} else if(SvROK(arg)) {
@@ -206,6 +226,21 @@ PROTOTYPE: $
 CODE:
 	if(!sv_is_glob(arg))
 		croak("argument is not a typeglob\n");
+
+bool
+is_regexp(SV *arg)
+PROTOTYPE: $
+CODE:
+	RETVAL = !!sv_is_regexp(arg);
+OUTPUT:
+	RETVAL
+
+void
+check_regexp(SV *arg)
+PROTOTYPE: $
+CODE:
+	if(!sv_is_regexp(arg))
+		croak("argument is not a regexp\n");
 
 bool
 is_ref(SV *arg, SV *type_sv = 0)
