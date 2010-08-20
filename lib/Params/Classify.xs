@@ -1,3 +1,4 @@
+#define PERL_NO_GET_CONTEXT 1
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -26,8 +27,8 @@
 	(!sv_is_glob(sv) && !sv_is_regexp(sv) && \
 	 (SvFLAGS(sv) & (SVf_IOK|SVf_NOK|SVf_POK|SVp_IOK|SVp_NOK|SVp_POK)))
 
-static svtype
-read_reftype(SV *reftype)
+#define read_reftype(reftype) THX_read_reftype(aTHX_ reftype)
+static svtype THX_read_reftype(pTHX_ SV *reftype)
 {
 	char *p;
 	STRLEN l;
@@ -62,8 +63,8 @@ read_reftype(SV *reftype)
 	}
 }
 
-static const char *
-write_reftype(svtype t)
+#define write_reftype(t) THX_write_reftype(aTHX_ t)
+static const char *THX_write_reftype(pTHX_ svtype t)
 {
 	switch(t) {
 		case SVt_NULL: return "SCALAR";
@@ -76,8 +77,8 @@ write_reftype(svtype t)
 	}
 }
 
-static const char *
-display_reftype(svtype t)
+#define display_reftype(t) THX_display_reftype(aTHX_ t)
+static const char *THX_display_reftype(pTHX_ svtype t)
 {
 	switch(t) {
 		case SVt_NULL: return "scalar";
@@ -90,8 +91,8 @@ display_reftype(svtype t)
 	}
 }
 
-static svtype
-ref_type(SV *referent)
+#define ref_type(referent) THX_ref_type(aTHX_ referent)
+static svtype THX_ref_type(pTHX_ SV *referent)
 {
 	svtype t = SvTYPE(referent);
 	switch(SvTYPE(referent)) {
@@ -112,16 +113,18 @@ ref_type(SV *referent)
 	}
 }
 
-static const char *
-blessed_class(SV *referent)
+#define blessed_class(referent) THX_blessed_class(aTHX_ referent)
+static const char *THX_blessed_class(pTHX_ SV *referent)
 {
 	HV *stash = SvSTASH(referent);
 	const char *name = HvNAME_get(stash);
 	return name ? name : "__ANON__";
 }
 
-static bool
-call_bool_method(SV *objref, const char *methodname, SV *arg)
+#define call_bool_method(objref, methodname, arg) \
+	THX_call_bool_method(aTHX_ objref, methodname, arg)
+static bool THX_call_bool_method(pTHX_ SV *objref, const char *methodname,
+	SV *arg)
 {
 	dSP;
 	int retcount;
@@ -144,8 +147,8 @@ call_bool_method(SV *objref, const char *methodname, SV *arg)
 	return retval;
 }
 
-static void
-check_methods_arg(SV *methods_sv)
+#define check_methods_arg(methods_sv) THX_check_methods_arg(aTHX_ methods_sv)
+static void THX_check_methods_arg(pTHX_ SV *methods_sv)
 {
 	AV *methods_av;
 	I32 alen, pos;
@@ -164,7 +167,7 @@ check_methods_arg(SV *methods_sv)
 
 MODULE = Params::Classify PACKAGE = Params::Classify
 
-char *
+const char *
 scalar_class(SV *arg)
 PROTOTYPE: $
 CODE:

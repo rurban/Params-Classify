@@ -17,6 +17,7 @@ t/classify_pp.t
 t/error.t
 t/error_pp.t
 t/pod_cvg.t
+t/pod_cvg_pp.t
 t/pod_syn.t
 t/ref.t
 t/ref_pp.t

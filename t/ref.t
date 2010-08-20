@@ -1,3 +1,6 @@
+use warnings;
+use strict;
+
 use Test::More tests => 1 + 8*12;
 
 BEGIN { use_ok "Params::Classify", qw(is_ref ref_type); }

@@ -1,3 +1,6 @@
+use warnings;
+use strict;
+
 use Test::More tests => 1 + 8*11;
 
 BEGIN {
@@ -27,7 +30,7 @@ test_scalar_classification(0,                 "STRING",  0, 1, 1, 0, 0, 0, 0);
 test_scalar_classification("0 but true",      "STRING",  0, 1, 1, 0, 0, 0, 0);
 test_scalar_classification("1ab",             "STRING",  0, 1, 0, 0, 0, 0, 0);
 test_scalar_classification(*STDOUT,           "GLOB",    0, 0, 0, 1, 0, 0, 0);
-SKIP: { skip "no first-class regexps", 8 unless $] >= 5.011;
+SKIP: { skip "no first-class regexps", 8 unless "$]" >= 5.011;
 test_scalar_classification(${qr/xyz/},        "REGEXP",  0, 0, 0, 0, 1, 0, 0);
 }
 test_scalar_classification({},                "REF",     0, 0, 0, 0, 0, 1, 0);

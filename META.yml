@@ -1,12 +1,32 @@
 ---
-name: Params-Classify
-version: 0.009
+abstract: 'argument type classification'
 author:
   - 'Andrew Main (Zefram) <zefram@fysh.org>'
-abstract: argument type classification
+build_requires:
+  Module::Build: 0
+  Test::More: 0
+  perl: 5.006
+  strict: 0
+  warnings: 0
+configure_requires:
+  Module::Build: 0
+  perl: 5.006
+  strict: 0
+  warnings: 0
+distribution_type: module
+dynamic_config: 1
+generated_by: 'Module::Build version 0.3607'
 license: perl
-resources:
-  license: http://dev.perl.org/licenses/
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Params-Classify
+provides:
+  Params::Classify:
+    file: lib/Params/Classify.pm
+    version: 0.010
+recommends:
+  XSLoader: 0
 requires:
   Exporter: 0
   Scalar::Util: 1.01
@@ -14,21 +34,6 @@ requires:
   perl: 5.006
   strict: 0
   warnings: 0
-build_requires:
-  Module::Build: 0
-  Test::More: 0
-  perl: 5.006
-  strict: 0
-  warnings: 0
-recommends:
-  XSLoader: 0
-dynamic_config: 1
-provides:
-  Params::Classify:
-    file: lib/Params/Classify.pm
-    version: 0.009
-generated_by: Module::Build version 0.280801
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
-distribution_type: module
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.010

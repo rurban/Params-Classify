@@ -1,3 +1,24 @@
+version 0.010; 2010-08-20
+
+  * in XS, use PERL_NO_GET_CONTEXT for efficiency
+
+  * use full stricture in test suite
+
+  * also test POD coverage of pure Perl implementation
+
+  * in test suite, make all numeric comparisons against $] stringify it
+    first, to avoid architecture-dependent problems with floating point
+    rounding giving it an unexpected numeric value
+
+  * make XS code const clean for gcc -Wwrite-strings
+
+  * in Build.PL, explicitly set needs_compiler to avoid bogus
+    auto-dependency on ExtUtils::CBuilder
+
+  * in Build.PL, explicitly declare configure-time requirements
+
+  * add MYMETA.yml to .cvsignore
+
 version 0.009; 2009-10-07
 
   * port to Perl 5.11.0, supporting the addition of first-class regexp
