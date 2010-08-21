@@ -22,4 +22,5 @@ t/pod_syn.t
 t/ref.t
 t/ref_pp.t
 t/setup_pp.pl
+typemap
 SIGNATURE    Added here by Module::Build

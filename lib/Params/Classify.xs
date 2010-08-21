@@ -95,13 +95,16 @@ static const char *THX_display_reftype(pTHX_ svtype t)
 static svtype THX_ref_type(pTHX_ SV *referent)
 {
 	svtype t = SvTYPE(referent);
-	switch(SvTYPE(referent)) {
+	switch(t) {
 		case SVt_NULL: case SVt_IV: case SVt_NV:
 #if !PERL_VERSION_GE(5,11,0)
 		case SVt_RV:
 #endif /* <5.11.0 */
 		case SVt_PV: case SVt_PVIV: case SVt_PVNV:
 		case SVt_PVMG: case SVt_PVLV: case SVt_PVGV:
+#if !PERL_VERSION_GE(5,9,5)
+		case SVt_PVBM:
+#endif /* <5.9.5 */
 #if PERL_VERSION_GE(5,11,0)
 		case SVt_REGEXP:
 #endif /* >=5.11.0 */

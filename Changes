@@ -1,3 +1,12 @@
+version 0.011; 2010-08-21
+
+  * bugfix: add a typemap entry for "const char *", to make XS version
+    of scalar_class() work correctly on Perl 5.6, having been broken by
+    the const fix in version 0.010
+
+  * in XS code, on Perls where it exists (prior to 5.9.5), treat SVt_PVBM
+    as a scalar referent type
+
 version 0.010; 2010-08-20
 
   * in XS, use PERL_NO_GET_CONTEXT for efficiency
