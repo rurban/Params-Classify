@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 129;
+use Test::More tests => 1 + 2*(4 + 2*4 + 5)*8;
 
 @B::ISA = qw(A);
 
@@ -19,15 +19,24 @@ my @method_names = qw(qwerty can isa print flange);
 sub test_blessed($$@) {
 	my($scalar, $class, $isb, @expect) = @_;
 	is(blessed_class($scalar), $class);
+	is(&blessed_class($scalar), $class);
 	is(!!is_blessed($scalar), !!$isb);
+	is(!!&is_blessed($scalar), !!$isb);
 	is(!!is_strictly_blessed($scalar), !!$isb);
+	is(!!&is_strictly_blessed($scalar), !!$isb);
+	is(!!is_able($scalar), !!$isb);
+	is(!!&is_able($scalar), !!$isb);
 	foreach my $cn (@class_names) {
 		my $state = shift(@expect);
 		is(!!is_blessed($scalar, $cn), !!$state);
+		is(!!&is_blessed($scalar, $cn), !!$state);
 		is(!!is_strictly_blessed($scalar, $cn), $state eq 2);
+		is(!!&is_strictly_blessed($scalar, $cn), $state eq 2);
 	}
 	foreach my $mn (@method_names) {
-		is(!!is_able($scalar, $mn), !!shift(@expect));
+		my $expect = !!shift(@expect);
+		is(!!is_able($scalar, $mn), $expect);
+		is(!!&is_able($scalar, $mn), $expect);
 	}
 }
 

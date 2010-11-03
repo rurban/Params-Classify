@@ -74,11 +74,11 @@ systems that can't handle XS.
 
 package Params::Classify;
 
-{ use 5.006; }
+{ use 5.006001; }
 use warnings;
 use strict;
 
-our $VERSION = "0.011";
+our $VERSION = "0.012";
 
 use parent "Exporter";
 our @EXPORT_OK = qw(
@@ -391,7 +391,7 @@ Possible I<TYPE>s are "B<SCALAR>", "B<ARRAY>", "B<HASH>", "B<CODE>",
 		return undef unless
 			defined($reftype) && !defined(blessed($_[0]));
 		my $xlated_reftype = $xlate_reftype{$reftype};
-		die "unknown reftype `$reftype', please update me"
+		die "unknown reftype `$reftype', please update Params::Classify"
 			unless defined $xlated_reftype;
 		$xlated_reftype;
 	}
@@ -408,7 +408,7 @@ Possible I<TYPE>s are "B<SCALAR>", "B<ARRAY>", "B<HASH>", "B<CODE>",
 			defined($reftype) && !defined(blessed($_[0]));
 		return 1 if @_ != 2;
 		my $xlated_reftype = $xlate_reftype{$reftype};
-		die "unknown reftype `$reftype', please update me"
+		die "unknown reftype `$reftype', please update Params::Classify"
 			unless defined $xlated_reftype;
 		return $xlated_reftype eq $_[1];
 	}
@@ -447,7 +447,7 @@ I<CLASS> must be a string, naming a Perl class.
 
 sub is_blessed($;$) {
 	die "class argument is not a string\n"
-		if @_ == 2  && !is_string($_[1]);
+		if @_ == 2 && !is_string($_[1]);
 	return defined(blessed($_[0])) && (@_ != 2 || $_[0]->isa($_[1]));
 }
 
@@ -491,18 +491,26 @@ specialised occasions where it is useful.
 =cut
 
 sub is_strictly_blessed($;$) {
-	die "class argument is not a string\n"
-		if @_ == 2  && !is_string($_[1]);
+	return &is_blessed unless @_ == 2;
+	die "class argument is not a string\n" unless is_string($_[1]);
 	my $blessed = blessed($_[0]);
-	return defined($blessed) && (@_ != 2 || $blessed eq $_[1]);
+	return defined($blessed) && $blessed eq $_[1];
 }
 
 sub check_strictly_blessed($;$) {
+	return &check_blessed unless @_ == 2;
 	unless(&is_strictly_blessed) {
-		die "argument is not a reference to strictly blessed ".
-			(@_ == 2 ? $_[1] : "object")."\n";
+		die "argument is not a reference to strictly blessed $_[1]\n";
 	}
 }
+
+=item is_able(ARG)
+
+=item check_able(ARG)
+
+Check whether I<ARG> is a reference to a blessed object, identically
+to L</is_blessed>.  This exists only for symmetry; the useful form of
+C<is_able> appears below.
 
 =item is_able(ARG, METHODS)
 
@@ -526,7 +534,8 @@ sub _check_methods_arg($) {
 	}
 }
 
-sub is_able($$) {
+sub is_able($;$) {
+	return &is_blessed unless @_ == 2;
 	_check_methods_arg($_[1]);
 	return 0 unless defined blessed $_[0];
 	foreach my $method (ref($_[1]) eq "" ? $_[1] : @{$_[1]}) {
@@ -535,7 +544,8 @@ sub is_able($$) {
 	return 1;
 }
 
-sub check_able($$) {
+sub check_able($;$) {
+	return &check_blessed unless @_ == 2;
 	_check_methods_arg($_[1]);
 	unless(defined blessed $_[0]) {
 		my $desc = ref($_[1]) eq "" ?
@@ -576,7 +586,7 @@ Andrew Main (Zefram) <zefram@fysh.org>
 Copyright (C) 2004, 2006, 2007, 2009, 2010
 Andrew Main (Zefram) <zefram@fysh.org>
 
-Copyright (C) 2009 PhotoBox Ltd
+Copyright (C) 2009, 2010 PhotoBox Ltd
 
 =head1 LICENSE
 
