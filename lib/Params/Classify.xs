@@ -17,6 +17,10 @@
 # define PERL_UNUSED_ARG(x) PERL_UNUSED_VAR(x)
 #endif /* !PERL_UNUSED_ARG */
 
+#ifndef Newx
+# define Newx(v,n,t) New(0,v,n,t)
+#endif /* !Newx */
+
 #ifndef HvNAME_get
 # define HvNAME_get(hv) HvNAME(hv)
 #endif
@@ -56,7 +60,8 @@ static PTR_TBL_t *THX_ptr_table_new(pTHX)
 	return tbl;
 }
 
-# define ptr_table_free(tbl) THX_ptr_table_free(aTHX_ tbl)
+# if 0
+#  define ptr_table_free(tbl) THX_ptr_table_free(aTHX_ tbl)
 static void THX_ptr_table_free(pTHX_ PTR_TBL_t *tbl)
 {
 	struct q_ptr_tbl_ent *ent = *tbl;
@@ -67,6 +72,7 @@ static void THX_ptr_table_free(pTHX_ PTR_TBL_t *tbl)
 		ent = nent;
 	}
 }
+# endif /* 0 */
 
 # define ptr_table_store(tbl, from, to) THX_ptr_table_store(aTHX_ tbl, from, to)
 static void THX_ptr_table_store(pTHX_ PTR_TBL_t *tbl, void *from, void *to)
@@ -637,7 +643,7 @@ static OP *myck_entersub(pTHX_ OP *op)
 		pushop->op_sibling = bop;
 		aop->op_sibling = NULL;
 		op_free(op);
-		op = newUNOP(OP_PUSHMARK, 0, aop);
+		op = newUNOP(OP_NULL, 0, aop);
 		op->op_type = OP_RAND;
 		op->op_ppaddr = ppfunc;
 		op->op_private = (U8)cvflags;
@@ -665,7 +671,7 @@ static OP *myck_entersub(pTHX_ OP *op)
 		aop->op_sibling = NULL;
 		bop->op_sibling = NULL;
 		op_free(op);
-		op = newBINOP(OP_PUSHMARK, 0, aop, bop);
+		op = newBINOP(OP_NULL, 0, aop, bop);
 		op->op_type = OP_RAND;
 		op->op_ppaddr = ppfunc;
 		op->op_private = (U8)cvflags;

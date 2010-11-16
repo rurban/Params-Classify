@@ -25,7 +25,7 @@ name: Params-Classify
 provides:
   Params::Classify:
     file: lib/Params/Classify.pm
-    version: 0.012
+    version: 0.013
 recommends:
   XSLoader: 0
 requires:
@@ -37,4 +37,4 @@ requires:
   warnings: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.012
+version: 0.013

@@ -78,7 +78,7 @@ package Params::Classify;
 use warnings;
 use strict;
 
-our $VERSION = "0.012";
+our $VERSION = "0.013";
 
 use parent "Exporter";
 our @EXPORT_OK = qw(

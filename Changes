@@ -1,3 +1,15 @@
+version 0.013; 2010-11-16
+
+  * bugfix: avoid triggering a core assertion on debugging builds,
+    by using OP_NULL as a stalking-horse opcode instead of OP_PUSHMARK
+    (nothing actually broke apart from the assertion)
+
+  * provide reserve definition of Newx(), to allow compilation on
+    non-threaded Perls prior to 5.8.8
+
+  * avoid a compiler warning from the reserve implementation of the
+    ptr_table data structure
+
 version 0.012; 2010-11-03
 
   * generate custom ops for most functions, to avoid heavyweight function
