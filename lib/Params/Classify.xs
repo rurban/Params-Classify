@@ -603,16 +603,22 @@ static void THX_xsfunc_check_blessed(pTHX_ CV *cv)
 #endif /* !PERL_ARGS_ASSERT_CROAK_XS_USAGE */
 
 #define rvop_cv(rvop) THX_rvop_cv(aTHX_ rvop)
-static CV *THX_rvop_cv(pTHX_ OP *rvop)
+static CV *THX_rvop_cv(pTHX_ OP *o)
 {
-	switch(rvop->op_type) {
-		case OP_CONST: {
-			SV *rv = cSVOPx_sv(rvop);
-			return SvROK(rv) ? (CV*)SvRV(rv) : NULL;
-		} break;
-		case OP_GV: return GvCV(cGVOPx_gv(rvop));
-		default: return NULL;
-	}
+  switch(o->op_type) {
+  case OP_CONST: {
+    SV *rv = cSVOPo_sv;
+    return SvROK(rv) ? (CV*)SvRV(rv) : NULL;
+  } break;
+  case OP_GV: {
+    SV *rv = (SV*)cGVOPo_gv;
+    if (rv && isGV(rv))
+      return GvCV(rv);
+    else if (rv && SvROK(rv))
+      return (CV*)SvRV(rv);
+  } break;
+  default: return NULL;
+  }
 }
 
 static PTR_TBL_t *ppmap;
