@@ -46,7 +46,7 @@ test_ref_type(\\1, "SCALAR");
 test_ref_type(\pos($foo), "SCALAR");
 test_ref_type([], "ARRAY");
 test_ref_type({}, "HASH");
-test_ref_type(\&is, "CODE");
+test_ref_type(sub {1}, "CODE");
 
 SKIP: {
 	my $format = *foo{FORMAT};
